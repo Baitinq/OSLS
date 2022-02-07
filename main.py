@@ -1,6 +1,6 @@
 import sys
 import math
-from time import sleep
+from random import randint
 
 from engine import Engine
 from fuel import Fuel
@@ -42,6 +42,7 @@ def main(argv):
     simulation = Simulation(universe, body, rocket)
 
     pygame.init()
+    pygame.display.set_caption("OSLS - Overly Simple Launch Simulator")
     clock = pygame.time.Clock()
 
     SCREEN_WIDTH = 1024
@@ -72,21 +73,39 @@ def main(argv):
         #TODO: allow for x movement, speed, accel etc
         #TODO: allow multilanguage api for landing algorithms etc
 
-def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[Simulation]) -> None:
+def linear_gradient(start_color, end_color, length, value_at):
+    return [
+        int(start_color[j] + (float(value_at)/(length-1))*(end_color[j]-start_color[j]))
+        for j in range(3)
+    ]
 
-        font = pygame.font.SysFont("Comic Sans MS", 30)
-        
+def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[Simulation]) -> None:        
         #draw background
-        def get_color_for_height(height: int) -> (int, int, int):
-            return (255, 255, 255)
-        
-        simulation_display.fill(get_color_for_height(simulation.y)) #gradient for atmosphere TODO
+        def get_color_for_height(height: float) -> (int, int, int):
+            if height < 70000:
+                return linear_gradient((31,118,194), (0, 0, 0), 70000, int(height))
+            else:
+                return (0, 0, 0)
 
+        #gradient for atmosphere
+        simulation_display.fill(get_color_for_height(simulation.y))
+
+        #draw clouds and stars
+        #draw clouds (we need continuity TODO)
+        #if simulation.y < 20000 and randint(0, 100) < 5:
+        #     pygame.draw.circle(simulation_display, (255, 255, 255), (randint(0, simulation_display.get_width()), randint(0, simulation_display.get_height())), 30)
+        #draw stars
+        if simulation.y > 30000:
+            for _ in range(100):
+                simulation_display.set_at((randint(0, simulation_display.get_width()), randint(0, simulation_display.get_height())), (255, 255, 255))
         #draw stats text
-        simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.y), False, (0, 0, 0)),(0,0))
-        simulation_display.blit(font.render("Speed: {:.0f}m/s".format(simulation.speed_y), False, (0, 0, 0)),(0,40))
-        simulation_display.blit(font.render("Acceleration: {:.2f}m/s2".format(simulation.acceleration_y), False, (0, 0, 0)),(0,80))
-        simulation_display.blit(font.render("Fuel: {:.0f}kg".format(simulation.rocket.fuel_mass), False, (0, 0, 0)),(0,120))
+        font = pygame.font.SysFont("Comic Sans MS", 30)
+
+        simulation_display.blit(font.render("Time: {:.0f}s".format(simulation.time), False, (255, 255, 255)),(0,0))
+        simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.y), False, (255, 255, 255)),(0,40))
+        simulation_display.blit(font.render("Speed: {:.0f}m/s".format(simulation.speed_y), False, (255, 255, 255)),(0,80))
+        simulation_display.blit(font.render("Acceleration: {:.2f}m/s2".format(simulation.acceleration_y), False, (255, 255, 255)),(0,120))
+        simulation_display.blit(font.render("Fuel: {:.0f}kg".format(simulation.rocket.fuel_mass), False, (255, 255, 255)),(0,160))
 
         #draw rocket
         rocket_height = 90
@@ -104,7 +123,7 @@ def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[S
         rocket_x = calculate_rocket_x_based_on_x_speed_accel(simulation_display.get_width(), rocket_width, None, None)
         rocket_y = calculate_rocket_y_based_on_y_speed_accel(simulation_display.get_height(), rocket_height, simulation.speed_y, simulation.acceleration_y)
 
-        rocket_color = (0, 125, 255)
+        rocket_color = (244, 67, 54)
 
         flame_radius = 10
         flame_color = (255, 125, 100)

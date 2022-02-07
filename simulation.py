@@ -72,6 +72,7 @@ class Simulation():
         print("Speed: " + str(self.speed_y))
         print("Height: " + str(self.y))
 
+        print("Total Simulation Time: " + str(self.time))
         print("")
 
         self.ticks += 1
