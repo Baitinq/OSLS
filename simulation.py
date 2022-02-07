@@ -19,6 +19,7 @@ class Simulation():
         self.rocket = rocket
         self.y = 0
         self.speed_y = 0
+        self.acceleration_y = 0
 
     #simulation logic
     def tick(self, delta: int) -> None:
@@ -58,9 +59,9 @@ class Simulation():
         total_force = upwards_force - downwards_force
         print("Total force: " + str(total_force))
 
-        acceleration = total_force / self.rocket.total_mass() #mayb we need momentum??
-        print("Acceleration: " + str(acceleration))
-        self.speed_y = self.speed_y + (acceleration * delta) #i think thir swrong
+        self.acceleration_y = total_force / self.rocket.total_mass() #mayb we need momentum??
+        print("Acceleration: " + str(self.acceleration_y))
+        self.speed_y = self.speed_y + (self.acceleration_y * delta) #i think thir swrong
 
         #update position based on velocity and delta
         self.y += self.speed_y * delta
