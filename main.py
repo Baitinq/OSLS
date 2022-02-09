@@ -15,9 +15,8 @@ import pygame
 from pygame.locals import *
 
 def main(argv):
-    #add engine mass
-    raptor_engine = Engine(name="raptor", isp=360, max_flow_rate=9000) #https://en.wikipedia.org/wiki/SpaceX_Raptor
-    methane_fuel = Fuel(name="methane", energy_density=None) #TODO: density
+    raptor_engine = Engine(name="raptor", isp=360, max_flow_rate=931) #https://en.wikipedia.org/wiki/SpaceX_Raptor
+    methane_fuel = Fuel(name="methane") #TODO: more
 
     #https://en.wikipedia.org/wiki/SpaceX_Starship
     first_stage = Stage(name="superheavy booster",
@@ -93,7 +92,6 @@ def main(argv):
             print("delta: " + str(delta))
             simulation.tick(delta=delta)
 
-        #TODO: support rocket engine mass
         #TODO: draw floor, flame (continuity)
         #TODO: do max load on rocket so it blows up
         #TODO: allow for x movement, speed, accel etc
@@ -131,7 +129,7 @@ def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[S
         simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.y), False, (255, 255, 255)),(0,40))
         simulation_display.blit(font.render("Speed: {:.0f}m/s".format(simulation.speed_y), False, (255, 255, 255)),(0,80))
         simulation_display.blit(font.render("Acceleration: {:.2f}m/s2".format(simulation.acceleration_y), False, (255, 255, 255)),(0,120))
-        simulation_display.blit(font.render("Thrust: {:.0f}N".format(simulation.rocket.current_stage().current_thrust()), False, (255, 255, 255)),(0,160))
+        simulation_display.blit(font.render("Thrust: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(simulation.body.g(simulation.universe.G, simulation.y))), False, (255, 255, 255)),(0,160))
         simulation_display.blit(font.render("Fuel in stage: {:.0f}kg".format(simulation.rocket.current_stage().fuel_mass), False, (255, 255, 255)),(0,200))
         simulation_display.blit(font.render("Stage mass: {:.0f}kg".format(simulation.rocket.current_stage().total_mass()), False, (255, 255, 255)),(0,240))
         simulation_display.blit(font.render("Rocket mass: {:.0f}kg".format(simulation.rocket.total_mass()), False, (255, 255, 255)),(0,280))
@@ -188,9 +186,11 @@ def handle_key_press(simulation, key):
         if current_stage.throttle < 100:
             current_stage.throttle += 1
     elif key == pygame.K_LEFT:
-        sys.exit(0)
+        return None
+        #sys.exit(0)
     elif key == pygame.K_RIGHT:
-        sys.exit(0)
+        return None
+        #sys.exit(0)
 
 if __name__ == "__main__":
     main(sys.argv)

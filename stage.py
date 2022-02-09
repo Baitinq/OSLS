@@ -18,9 +18,9 @@ class Stage():
     def total_mass(self):
         return (self.stage_mass + self.fuel_mass)
 
-    def current_thrust(self):
+    def current_thrust(self, g: float):
         if(self.engines_on and self.fuel_mass > 0):
-            return self.engine.thrust(self.throttle) * self.engine_number
+            return self.engine.thrust(self.throttle, g) * self.engine_number
         else:
             return 0
 

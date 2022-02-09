@@ -1,4 +1,3 @@
 class Fuel():
-    def __init__(self, name: str, energy_density: float):
+    def __init__(self, name: str):
         self.name = name
-        self.energy_density = energy_density

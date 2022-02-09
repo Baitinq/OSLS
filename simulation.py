@@ -34,7 +34,7 @@ class Simulation():
         #upwards_force = fuel_used * self.rocket.fuel_type.energy_density #we should calculate thrust based on this
         upwards_force = 0
         if fuel_used > 0:
-            upwards_force = current_stage.current_thrust()
+            upwards_force = current_stage.current_thrust(self.body.g(self.universe.G, self.y))
         print("Upwards force: " + str(upwards_force))
 
         print("g: " + str(self.body.g(G=self.universe.G, height=self.y)))
