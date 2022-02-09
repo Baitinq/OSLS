@@ -19,9 +19,9 @@ class Simulation():
         self.rocket = rocket
         self.x = 0#TODO
         self.y = 0 #TODO: we need to make it so there is height() to calc height based on x and y
-        self.speed_x = 0#TODO
+        self.speed_x = 0
         self.speed_y = 0
-        self.acceleration_x = 0#TODO
+        self.acceleration_x = 0
         self.acceleration_y = 0
 
     #simulation logic
@@ -33,9 +33,7 @@ class Simulation():
             fuel_used = current_stage.fuel_mass
         current_stage.fuel_mass -= fuel_used
         print("Fuel remaining: " + str(current_stage.fuel_mass))
-        
-        #TODO: FORCE_X AND FORCE_Y
-        
+                
         force_x = 0
         force_y = 0
         if fuel_used > 0:
@@ -45,9 +43,6 @@ class Simulation():
         
         print("Thrust X: " + str(force_x))
         print("Thrust Y: " + str(force_y))
-
-        #print("Y THRUST: " + str(upwards_force))
-        #print("TOTAL THRUST: " + str(current_stage.convert_y_component_to_total_with_gimbal(upwards_force)))
 
         print("BODY MASS: " + str(self.body.mass()))
         print("ROCKET TOTAL MASS: " + str(self.rocket.total_mass()))
@@ -84,18 +79,28 @@ class Simulation():
         print("Total Force X: " + str(force_x))
         print("Total Force Y: " + str(force_y))
 
-        self.acceleration_y = force_y / self.rocket.total_mass() #mayb we need momentum??
-        print("Acceleration: " + str(self.acceleration_y))
-        self.speed_y = self.speed_y + (self.acceleration_y * delta) #i think thir swrong
+        self.acceleration_x = force_x / self.rocket.total_mass()
+        self.acceleration_y = force_y / self.rocket.total_mass()
+        print("Acceleration x: " + str(self.acceleration_x))
+        print("Acceleration y: " + str(self.acceleration_y))
+        
+        self.speed_x = self.speed_x + (self.acceleration_x * delta)
+        self.speed_y = self.speed_y + (self.acceleration_y * delta)
+
+        print("Speed x: " + str(self.speed_x))
+        print("Speed y: " + str(self.speed_y))
 
         #update position based on velocity and delta
+        self.x += self.speed_x * delta
+
+        #in future u should be able to go negative y (y and height are different)
         self.y += self.speed_y * delta
         if self.y < 0:
             self.y = 0
             self.speed_y = 0
             
-        print("Speed: " + str(self.speed_y))
-        print("Height: " + str(self.y))
+        print("X: " + str(self.x))
+        print("Y: " + str(self.y))
 
         print("Total Simulation Time: " + str(self.time))
         print("")

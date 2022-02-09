@@ -7,6 +7,8 @@ class Rocket():
         self.stages_spent = 0
         self.payload_mass = payload_mass
 
+        self.heading_angle = 0 #TODO: TODOODODODODODODODODODOOD
+
     def current_stage(self) -> type[Stage]:
         return self.stages[0]
 

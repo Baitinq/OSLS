@@ -15,7 +15,7 @@ class Stage():
         self.cross_sectional_area = cross_sectional_area
         
         self.max_engine_gimbaling_angle = max_engine_gimbaling_angle
-        self.gimbal = 0
+        self.gimbal = 0 #one thing is gimbal another is rocket angle (TODO TOODODODODODODOD)
         self.throttle = 100
         self.engines_on = False
 
