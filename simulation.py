@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 
 from universe import Universe
@@ -24,6 +25,8 @@ class Simulation():
         self.acceleration_x = 0
         self.acceleration_y = 0
 
+        self.heading = 0
+
     #simulation logic
     def tick(self, delta: int) -> None:
         current_stage = self.rocket.current_stage()
@@ -37,7 +40,7 @@ class Simulation():
         force_x = 0
         force_y = 0
         if fuel_used > 0:
-            total_thrust = current_stage.current_thrust(self.body.g(self.universe.G, self.y))
+            total_thrust = current_stage.current_thrust(self.body.g(self.universe.G, self.y), self.heading)
             force_x = total_thrust[0]
             force_y = total_thrust[1]
         
@@ -89,6 +92,14 @@ class Simulation():
 
         print("Speed x: " + str(self.speed_x))
         print("Speed y: " + str(self.speed_y))
+
+        #TODO: HEADING behaves a bit weird, just a bit and it goes forever and hard to cancel. WELL CALCULATED OR IMPLEMENTED?
+        #speedx / speedy
+        #1 = 45
+        #-1 = -45
+        #0 = 90
+        self.heading = math.degrees(self.speed_x / self.speed_y) #TODO? con speed, y luego heading influences thrust (gimbal), so pass as a parameter to func
+        print("Heading: " + str(self.heading))
 
         #update position based on velocity and delta
         self.x += self.speed_x * delta

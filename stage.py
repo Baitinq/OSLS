@@ -22,11 +22,13 @@ class Stage():
     def total_mass(self):
         return (self.stage_mass + self.fuel_mass)
 
-    def current_thrust(self, g: float) -> (float, float):
+    def current_thrust(self, g: float, heading: int) -> (float, float):
         if(self.engines_on and self.fuel_mass > 0):
             total_thrust = self.engine.thrust(self.throttle, g) * self.engine_number
-            thrust_x = (math.sin(math.radians(self.gimbal)) * total_thrust)
-            thrust_y = (math.cos(math.radians(self.gimbal)) * total_thrust)
+            #gimbal and heading components
+            thrust_x = (math.sin(math.radians(self.gimbal + heading)) * total_thrust)
+            thrust_y = (math.cos(math.radians(self.gimbal + heading)) * total_thrust)
+
             return (thrust_x, thrust_y)
         else:
             return (0, 0)
