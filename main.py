@@ -55,8 +55,7 @@ def main(argv):
                 )
     
     universe = Universe(name="conventional",
-                        G=6.67E-11,
-                        plank=None
+                        G=6.67E-11
                         )
     
     simulation = Simulation(universe, body, rocket)
