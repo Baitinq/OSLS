@@ -17,8 +17,11 @@ class Simulation():
         self.universe = universe
         self.body = body
         self.rocket = rocket
-        self.y = 0
+        self.x = 0#TODO
+        self.y = 0 #TODO: we need to make it so there is height() to calc height based on x and y
+        self.speed_x = 0#TODO
         self.speed_y = 0
+        self.acceleration_x = 0#TODO
         self.acceleration_y = 0
 
     #simulation logic
@@ -31,21 +34,20 @@ class Simulation():
         current_stage.fuel_mass -= fuel_used
         print("Fuel remaining: " + str(current_stage.fuel_mass))
         
-        #upwards_force = fuel_used * self.rocket.fuel_type.energy_density #we should calculate thrust based on this
+        #TODO: FORCE_X AND FORCE_Y
+        
         upwards_force = 0
         if fuel_used > 0:
-            upwards_force = current_stage.current_thrust(self.body.g(self.universe.G, self.y))
+            upwards_force = current_stage.current_thrust(self.body.g(self.universe.G, self.y))[1]
         print("Upwards force: " + str(upwards_force))
 
-        print("g: " + str(self.body.g(G=self.universe.G, height=self.y)))
-
-        #calculate downwards force by drag and gravity
-        gravitational_force = self.body.g(G=self.universe.G, height=self.y) * self.rocket.total_mass()
-        print("Gravity: " + str(gravitational_force))
+        #print("Y THRUST: " + str(upwards_force))
+        #print("TOTAL THRUST: " + str(current_stage.convert_y_component_to_total_with_gimbal(upwards_force)))
 
         print("BODY MASS: " + str(self.body.mass()))
         print("ROCKET TOTAL MASS: " + str(self.rocket.total_mass()))
 
+        #calculate downwards force by drag and gravity
         print("Atmosphere density: " + str(self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y))))
 
         #https://www.grc.nasa.gov/www/k-12/airplane/drageq.html
@@ -54,6 +56,13 @@ class Simulation():
         if self.speed_y < 0:
             drag_force *= -1
         print("Drag: " + str(drag_force))
+
+        print("g: " + str(self.body.g(G=self.universe.G, height=self.y)))
+
+        gravitational_force = self.body.g(G=self.universe.G, height=self.y) * self.rocket.total_mass()
+        print("Gravity: " + str(gravitational_force))
+
+
 
         downwards_force = gravitational_force + drag_force #shouldnt delta influence, TODO: WAIT DRAG COULD BE POSITIVE OR NEGATIVE
         print("Downwards force: " + str(downwards_force))
