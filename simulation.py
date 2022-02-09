@@ -36,10 +36,15 @@ class Simulation():
         
         #TODO: FORCE_X AND FORCE_Y
         
-        upwards_force = 0
+        force_x = 0
+        force_y = 0
         if fuel_used > 0:
-            upwards_force = current_stage.current_thrust(self.body.g(self.universe.G, self.y))[1]
-        print("Upwards force: " + str(upwards_force))
+            total_thrust = current_stage.current_thrust(self.body.g(self.universe.G, self.y))
+            force_x = total_thrust[0]
+            force_y = total_thrust[1]
+        
+        print("Thrust X: " + str(force_x))
+        print("Thrust Y: " + str(force_y))
 
         #print("Y THRUST: " + str(upwards_force))
         #print("TOTAL THRUST: " + str(current_stage.convert_y_component_to_total_with_gimbal(upwards_force)))
@@ -48,30 +53,38 @@ class Simulation():
         print("ROCKET TOTAL MASS: " + str(self.rocket.total_mass()))
 
         #calculate downwards force by drag and gravity
-        print("Atmosphere density: " + str(self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y))))
-
-        #https://www.grc.nasa.gov/www/k-12/airplane/drageq.html
-        drag_force = (1/2) * self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y)) * (self.speed_y ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
-        #drag goes against speed
-        if self.speed_y < 0:
-            drag_force *= -1
-        print("Drag: " + str(drag_force))
-
         print("g: " + str(self.body.g(G=self.universe.G, height=self.y)))
 
         gravitational_force = self.body.g(G=self.universe.G, height=self.y) * self.rocket.total_mass()
         print("Gravity: " + str(gravitational_force))
 
+        #Remove gravity from force
+        force_y -= gravitational_force
 
+        print("Atmosphere density: " + str(self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y))))
 
-        downwards_force = gravitational_force + drag_force #shouldnt delta influence, TODO: WAIT DRAG COULD BE POSITIVE OR NEGATIVE
-        print("Downwards force: " + str(downwards_force))
+        #TODO: cross sectional area and drag coef for x should b different
+        drag_force_x = (1/2) * self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y)) * (self.speed_x ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
+        #drag goes against speed
+        if force_x < 0:
+            drag_force_x *= -1
+        print("Drag X: " + str(drag_force_x))
 
-        #update velocity based on resultant force
-        total_force = upwards_force - downwards_force
-        print("Total force: " + str(total_force))
+        #https://www.grc.nasa.gov/www/k-12/airplane/drageq.html
+        drag_force_y = (1/2) * self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y)) * (self.speed_y ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
+        #drag goes against speed
+        if force_y < 0:
+            drag_force_y *= -1
+        print("Drag Y: " + str(drag_force_y))
 
-        self.acceleration_y = total_force / self.rocket.total_mass() #mayb we need momentum??
+        #remove drag
+        force_x -= drag_force_x
+        force_y -= drag_force_y
+
+        print("Total Force X: " + str(force_x))
+        print("Total Force Y: " + str(force_y))
+
+        self.acceleration_y = force_y / self.rocket.total_mass() #mayb we need momentum??
         print("Acceleration: " + str(self.acceleration_y))
         self.speed_y = self.speed_y + (self.acceleration_y * delta) #i think thir swrong
 

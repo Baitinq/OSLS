@@ -25,8 +25,8 @@ class Stage():
     def current_thrust(self, g: float) -> (float, float):
         if(self.engines_on and self.fuel_mass > 0):
             total_thrust = self.engine.thrust(self.throttle, g) * self.engine_number
-            thrust_x = math.fabs(math.sin(math.radians(self.gimbal)) * total_thrust)
-            thrust_y = math.fabs(math.cos(math.radians(self.gimbal)) * total_thrust)
+            thrust_x = (math.sin(math.radians(self.gimbal)) * total_thrust)
+            thrust_y = (math.cos(math.radians(self.gimbal)) * total_thrust)
             return (thrust_x, thrust_y)
         else:
             return (0, 0)
