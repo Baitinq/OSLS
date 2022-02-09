@@ -40,7 +40,8 @@ def main(argv):
                         )
 
     rocket = Rocket(name="starship launch system", 
-                    stages=[first_stage, second_stage]
+                    stages=[first_stage, second_stage],
+                    payload_mass=100
                     )
     
     body = Body(name="earth",
@@ -96,6 +97,7 @@ def main(argv):
         #TODO: do max load on rocket so it blows up
         #TODO: allow for x movement, speed, accel etc
         #TODO: allow multilanguage api for landing algorithms etc
+        #TODO: probs need cloud sprite that spawns and despawns as well as floor sprite
 
 def linear_gradient(start_color, end_color, length, value_at):
     return [

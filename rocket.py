@@ -1,10 +1,11 @@
 from stage import Stage
 
 class Rocket():
-    def __init__(self, name: str, stages: [type[Stage]]):
+    def __init__(self, name: str, stages: [type[Stage]], payload_mass: int):
         self.name = name
         self.stages = stages
         self.stages_spent = 0
+        self.payload_mass = payload_mass
 
     def current_stage(self) -> type[Stage]:
         return self.stages[0]
@@ -19,7 +20,7 @@ class Rocket():
             self.current_stage().engines_on = engines_on
 
     def total_mass(self):
-        total_mass = 0
+        total_mass = self.payload_mass
         for stage in self.stages:
             total_mass += stage.total_mass()
         return total_mass
