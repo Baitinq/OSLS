@@ -94,20 +94,19 @@ def main(argv):
             print("delta: " + str(delta))
             simulation.tick(delta=delta)
 
-        #TODO: draw floor, flame (continuity)
+        #TODO: draw body sprite, rocket sprite, clouds sprites, etc.
+        #TODO: implement height properly (body radius) + actually implement body
         #TODO: do max load on rocket so it blows up
-        #TODO: allow for x movement, speed, accel etc
         #TODO: allow multilanguage api for landing algorithms etc
-        #TODO: probs need cloud sprite that spawns and despawns as well as floor sprite
-
-def linear_gradient(start_color, end_color, length, value_at):
-    return [
-        int(start_color[j] + (float(value_at)/(length-1))*(end_color[j]-start_color[j]))
-        for j in range(3)
-    ]
 
 def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[Simulation]) -> None:        
         #draw background
+        def linear_gradient(start_color, end_color, length, value_at):
+            return [
+                int(start_color[j] + (float(value_at)/(length-1))*(end_color[j]-start_color[j]))
+                for j in range(3)
+            ]
+            
         def get_color_for_height(height: float) -> (int, int, int):
             if height < 70000:
                 return linear_gradient((31,118,194), (0, 0, 0), 70000, int(height))
@@ -170,7 +169,7 @@ def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[S
         flame_radius = 10
         flame_color = (255, 125, 100)
 
-        #TODO: Rotate rocket with gimbal? or with accel? probs with accel
+        #TODO: Rotate rocket with heading
         i = simulation.rocket.stages_spent
         stage_height = first_stage_height / (i + 1)
         stage_y = rocket_y + first_stage_height - stage_height

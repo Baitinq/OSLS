@@ -93,14 +93,14 @@ class Simulation():
         print("Speed x: " + str(self.speed_x))
         print("Speed y: " + str(self.speed_y))
 
-        #TODO: HEADING behaves a bit weird, just a bit and it goes forever and hard to cancel. WELL CALCULATED OR IMPLEMENTED?
-        #speedx / speedy
-        #1 = 45
-        #-1 = -45
-        #0 = 90
-        self.heading = math.degrees(self.speed_x / self.speed_y) #TODO? con speed, y luego heading influences thrust (gimbal), so pass as a parameter to func
+        #TODO: WELL CALCULATED? (angle well?)
+        ref_vec = (0, 1)
+        acc_vec = (self.speed_x, self.speed_y)
+        dot = (acc_vec[0] * ref_vec[0]) + (acc_vec[1] * ref_vec[1])
+        det = (acc_vec[0] * ref_vec[1]) - (acc_vec[1] * ref_vec[0])
+        self.heading = math.degrees(math.atan2(det, dot))
         print("Heading: " + str(self.heading))
-
+        
         #update position based on velocity and delta
         self.x += self.speed_x * delta
 
