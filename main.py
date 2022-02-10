@@ -94,6 +94,7 @@ def main(argv):
             print("delta: " + str(delta))
             simulation.tick(delta=delta)
 
+        #TODO: IMPLEMENT rocket_x_drag_coefficient() that adds the x drag coefficient of all stages, same with cross sectional area
         #TODO: draw body sprite, rocket sprite, clouds sprites, etc.
         #TODO: implement height properly (body radius) + actually implement body
         #TODO: do max load on rocket so it blows up
@@ -106,7 +107,7 @@ def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[S
                 int(start_color[j] + (float(value_at)/(length-1))*(end_color[j]-start_color[j]))
                 for j in range(3)
             ]
-            
+
         def get_color_for_height(height: float) -> (int, int, int):
             if height < 70000:
                 return linear_gradient((31,118,194), (0, 0, 0), 70000, int(height))

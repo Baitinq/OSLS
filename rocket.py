@@ -37,5 +37,7 @@ class Rocket():
     def s_drag_coefficient(self):
         return self.top_stage().drag_coefficient
 
+    #TODO: IMPLEMENT rocket_x_drag_coefficient() that adds the x drag coefficient of all stages, same with cross sectional area
+
     def __str__(self):
         return "eue"

@@ -40,7 +40,7 @@ class Simulation():
         force_x = 0
         force_y = 0
         if fuel_used > 0:
-            total_thrust = current_stage.current_thrust(self.body.g(self.universe.G, self.y), self.heading)
+            total_thrust = current_stage.current_thrust(self.body.g(self.universe.G, self.rocket_altitude()), self.heading)
             force_x = total_thrust[0]
             force_y = total_thrust[1]
         
@@ -51,25 +51,27 @@ class Simulation():
         print("ROCKET TOTAL MASS: " + str(self.rocket.total_mass()))
 
         #calculate downwards force by drag and gravity
-        print("g: " + str(self.body.g(G=self.universe.G, height=self.y)))
+        g = self.body.g(G=self.universe.G, height=self.rocket_altitude())
+        print("g: " + str(g))
 
-        gravitational_force = self.body.g(G=self.universe.G, height=self.y) * self.rocket.total_mass()
+        gravitational_force = g * self.rocket.total_mass()
         print("Gravity: " + str(gravitational_force))
 
         #Remove gravity from force
         force_y -= gravitational_force
 
-        print("Atmosphere density: " + str(self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y))))
+        curr_atmospheric_density = self.body.atmosphere.density_at_height(self.rocket_altitude(), g)
+        print("Atmosphere density: " + str(curr_atmospheric_density))
 
         #TODO: cross sectional area and drag coef for x should b different
-        drag_force_x = (1/2) * self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y)) * (self.speed_x ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
+        drag_force_x = (1/2) * curr_atmospheric_density * (self.speed_x ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
         #drag goes against speed
         if force_x < 0:
             drag_force_x *= -1
         print("Drag X: " + str(drag_force_x))
 
         #https://www.grc.nasa.gov/www/k-12/airplane/drageq.html
-        drag_force_y = (1/2) * self.body.atmosphere.density_at_height(self.y, self.body.g(G=self.universe.G, height=self.y)) * (self.speed_y ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
+        drag_force_y = (1/2) * curr_atmospheric_density * (self.speed_y ** 2) * self.rocket.s_drag_coefficient() * self.rocket.s_cross_sectional_area()
         #drag goes against speed
         if force_y < 0:
             drag_force_y *= -1
@@ -118,6 +120,9 @@ class Simulation():
 
         self.ticks += 1
         self.time += delta
+
+    def rocket_altitude(self):
+        return self.y #TODO: take into account body and allow for 360 height
 
     def snapshot(self) -> Simulation_Snapshot:
         return Simulation_Snapshot(self.universe, self.body, self.rocket)
