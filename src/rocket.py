@@ -31,13 +31,21 @@ class Rocket():
             fuel_mass += stage.fuel_mass
         return fuel_mass
 
-    def s_cross_sectional_area(self):
-        return self.top_stage().cross_sectional_area
+    #maybe we should average this with the rest of the stages?
+    def rocket_x_drag_coefficient(self):
+        return self.top_stage().x_drag_coefficient
 
-    def s_drag_coefficient(self):
-        return self.top_stage().drag_coefficient
+    def rocket_x_cross_sectional_area(self):
+        total_cross_sectional_area = 0
+        for stage in self.stages:
+            total_cross_sectional_area += stage.x_cross_sectional_area
+        return total_cross_sectional_area
 
-    #TODO: IMPLEMENT rocket_x_drag_coefficient() that adds the x drag coefficient of all stages, same with cross sectional area
+    def rocket_y_drag_coefficient(self):
+        return self.top_stage().y_drag_coefficient
+
+    def rocket_y_cross_sectional_area(self):
+        return self.top_stage().y_cross_sectional_area
 
     def __str__(self):
         return "eue"

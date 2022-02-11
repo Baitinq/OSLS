@@ -4,15 +4,17 @@ from engine import Engine
 from fuel import Fuel
 
 class Stage():
-    def __init__(self, name: str, stage_mass: int, engine: type[Engine], engine_number: int, max_engine_gimbaling_angle: int, fuel_type: type[Fuel], fuel_mass: int, drag_coefficient: float, cross_sectional_area: float):
+    def __init__(self, name: str, stage_mass: int, engine: type[Engine], engine_number: int, max_engine_gimbaling_angle: int, fuel_type: type[Fuel], fuel_mass: int, x_drag_coefficient: float, x_cross_sectional_area: float, y_drag_coefficient: float, y_cross_sectional_area: float):
         self.name = name
         self.stage_mass = stage_mass
         self.engine = engine
         self.engine_number = engine_number 
         self.fuel_type = fuel_type
         self.fuel_mass = fuel_mass
-        self.drag_coefficient = drag_coefficient
-        self.cross_sectional_area = cross_sectional_area
+        self.x_drag_coefficient = x_drag_coefficient
+        self.x_cross_sectional_area = x_cross_sectional_area
+        self.y_drag_coefficient = y_drag_coefficient
+        self.y_cross_sectional_area = y_cross_sectional_area
         
         self.max_engine_gimbaling_angle = max_engine_gimbaling_angle
         self.gimbal = 0 #one thing is gimbal another is rocket angle (TODO TOODODODODODODOD)

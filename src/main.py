@@ -26,8 +26,10 @@ def main(argv):
                         max_engine_gimbaling_angle=30,
                         fuel_type=methane_fuel,
                         fuel_mass=3600000,
-                        drag_coefficient=1.18,
-                        cross_sectional_area=(math.pi * (9**2))
+                        x_drag_coefficient=1.16,#https://www.sciencedirect.com/science/article/abs/pii/S002980181400167X
+                        x_cross_sectional_area=(69 * 9), #booster height: 69m, diameter:9m
+                        y_drag_coefficient=1.28,#https://www.grc.nasa.gov/www/k-12/rocket/shaped.html
+                        y_cross_sectional_area=(math.pi * (4.5**2)) #booster radius: 4.5m
                         )
 
     second_stage = Stage(name="starship",
@@ -37,8 +39,10 @@ def main(argv):
                         max_engine_gimbaling_angle=30,
                         fuel_type=methane_fuel,
                         fuel_mass=1200000,
-                        drag_coefficient=1.18,
-                        cross_sectional_area=(math.pi * (9**2))
+                        x_drag_coefficient=1.16,#https://www.sciencedirect.com/science/article/abs/pii/S002980181400167X
+                        x_cross_sectional_area=(49 * 9), #rocket height: 49m, diameter:9m
+                        y_drag_coefficient=0.8,#https://www.grc.nasa.gov/www/k-12/rocket/shaped.html
+                        y_cross_sectional_area=(math.pi * (4.5**2))#rocket radius: 4.5m
                         )
 
     rocket = Rocket(name="starship launch system", 
@@ -94,7 +98,6 @@ def main(argv):
             print("delta: " + str(delta))
             simulation.tick(delta=delta)
 
-        #TODO: IMPLEMENT rocket_x_drag_coefficient() that adds the x drag coefficient of all stages, same with cross sectional area
         #TODO: draw body sprite, rocket sprite, clouds sprites, etc.
         #TODO: implement height properly (body radius) + actually implement body
         #TODO: do max load on rocket so it blows up
@@ -115,21 +118,21 @@ def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[S
                 return (0, 0, 0)
 
         #gradient for atmosphere
-        simulation_display.fill(get_color_for_height(simulation.y))
+        simulation_display.fill(get_color_for_height(simulation.rocket_altitude()))
 
         #draw clouds and stars
         #draw clouds (we need continuity TODO)
         #if simulation.y < 20000 and randint(0, 100) < 5:
         #     pygame.draw.circle(simulation_display, (255, 255, 255), (randint(0, simulation_display.get_width()), randint(0, simulation_display.get_height())), 30)
         #draw stars
-        if simulation.y > 30000:
+        if simulation.rocket_altitude() > 30000:
             for _ in range(100):
                 simulation_display.set_at((randint(0, simulation_display.get_width()), randint(0, simulation_display.get_height())), (255, 255, 255))
         #draw stats text
         font = pygame.font.SysFont("Comic Sans MS", 30)
 
-        curr_thrust = simulation.rocket.current_stage().current_thrust(simulation.body.g(simulation.universe.G, simulation.y), simulation.heading)
-        g = simulation.body.g(simulation.universe.G, simulation.y)
+        g = simulation.body.g(simulation.universe.G, simulation.rocket_altitude())
+        curr_thrust = simulation.rocket.current_stage().current_thrust(g, simulation.heading)
 
         simulation_display.blit(font.render("Simulation time: {:.0f}s".format(simulation.time), False, (255, 255, 255)),(0,0))
         simulation_display.blit(font.render("X: {:.0f}m".format(simulation.x), False, (255, 255, 255)),(0,40))
@@ -140,7 +143,7 @@ def draw_simulation(simulation_display: type[pygame.Surface], simulation: type[S
         simulation_display.blit(font.render("Acceleration y: {:.2f}m/s2".format(simulation.acceleration_y), False, (255, 255, 255)),(0,240))
         simulation_display.blit(font.render("Thrust x: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(g, simulation.heading)[0]), False, (255, 255, 255)),(0,280))
         simulation_display.blit(font.render("Thrust y: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(g, simulation.heading)[1]), False, (255, 255, 255)),(0,320))
-        simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.y), False, (255, 255, 255)),(0,360))
+        simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.rocket_altitude()), False, (255, 255, 255)),(0,360))
         simulation_display.blit(font.render("Fuel in stage: {:.0f}kg".format(simulation.rocket.current_stage().fuel_mass), False, (255, 255, 255)),(0,400))
         simulation_display.blit(font.render("Stage mass: {:.0f}kg".format(simulation.rocket.current_stage().total_mass()), False, (255, 255, 255)),(0,440))
         simulation_display.blit(font.render("Rocket mass: {:.0f}kg".format(simulation.rocket.total_mass()), False, (255, 255, 255)),(0,480))
