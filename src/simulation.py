@@ -91,17 +91,6 @@ class Simulation():
         
         self.speed_x = self.speed_x + (self.acceleration_x * delta)
         self.speed_y = self.speed_y + (self.acceleration_y * delta)
-
-        print("Speed x: " + str(self.speed_x))
-        print("Speed y: " + str(self.speed_y))
-
-        #TODO: WELL CALCULATED? (angle well?)
-        ref_vec = (0, 1)
-        acc_vec = (self.speed_x, self.speed_y)
-        dot = (acc_vec[0] * ref_vec[0]) + (acc_vec[1] * ref_vec[1])
-        det = (acc_vec[0] * ref_vec[1]) - (acc_vec[1] * ref_vec[0])
-        self.heading = math.degrees(math.atan2(det, dot))
-        print("Heading: " + str(self.heading))
         
         #update position based on velocity and delta
         self.x += self.speed_x * delta
@@ -112,9 +101,19 @@ class Simulation():
             self.y -= self.speed_y * delta
             self.speed_x = 0
             self.speed_y = 0
+
+        print("Speed x: " + str(self.speed_x))
+        print("Speed y: " + str(self.speed_y))
             
         print("X: " + str(self.x))
         print("Y: " + str(self.y))
+
+        ref_vec = (0, 1)
+        acc_vec = (self.speed_x, self.speed_y)
+        dot = (acc_vec[0] * ref_vec[0]) + (acc_vec[1] * ref_vec[1])
+        det = (acc_vec[0] * ref_vec[1]) - (acc_vec[1] * ref_vec[0])
+        self.heading = math.degrees(math.atan2(det, dot))
+        print("Heading: " + str(self.heading))
 
         print("Total Simulation Time: " + str(self.time))
         print("")
