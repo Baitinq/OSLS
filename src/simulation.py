@@ -19,7 +19,7 @@ class Simulation():
         self.body = body
         self.rocket = rocket
         self.x = 0#TODO
-        self.y = 0 #TODO: we need to make it so there is height() to calc height based on x and y
+        self.y = self.body.radius #TODO: we need to make it so there is height() to calc height based on x and y
         self.speed_x = 0
         self.speed_y = 0
         self.acceleration_x = 0
@@ -105,11 +105,12 @@ class Simulation():
         
         #update position based on velocity and delta
         self.x += self.speed_x * delta
-
-        #in future u should be able to go negative y (y and height are different)
         self.y += self.speed_y * delta
-        if self.y < 0:
-            self.y = 0
+        if self.rocket_altitude() < 0:
+            #undo positional changes
+            self.x -= self.speed_x * delta
+            self.y -= self.speed_y * delta
+            self.speed_x = 0
             self.speed_y = 0
             
         print("X: " + str(self.x))
@@ -122,7 +123,10 @@ class Simulation():
         self.time += delta
 
     def rocket_altitude(self):
-        return self.y #TODO: take into account body and allow for 360 height
+        #take into account body and allow for 360 height
+        altitude = math.sqrt(self.x**2 + self.y**2)
+        altitude -= self.body.radius
+        return altitude 
 
     def snapshot(self) -> Simulation_Snapshot:
         return Simulation_Snapshot(self.universe, self.body, self.rocket)
