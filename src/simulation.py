@@ -5,6 +5,8 @@ from universe import Universe
 from body import Body
 from rocket import Rocket
 
+#Simulates polar orbit as no body rotation assumed
+
 @dataclass
 class Simulation_Snapshot:
     universe: type[Universe]
@@ -54,10 +56,25 @@ class Simulation():
         print("ROCKET TOTAL MASS: " + str(self.rocket.total_mass()))
 
         #calculate downwards force by drag and gravity
-        gravitational_force_y = g * self.rocket.total_mass()
+        total_gravitational_force = g * self.rocket.total_mass()
+        print("Total Gravity: " + str(total_gravitational_force))
+
+        ref_vec = (0, 1)
+        pos_vec = (self.x, self.y)
+        dot = (pos_vec[0] * ref_vec[0]) + (pos_vec[1] * ref_vec[1])
+        det = (pos_vec[0] * ref_vec[1]) - (pos_vec[1] * ref_vec[0])
+        angle_of_position_with_respect_to_origin = math.degrees(math.atan2(det, dot))
+        print("angle_of_position_with_respect_to_origin: " + str(angle_of_position_with_respect_to_origin))
+
+        gravitational_force_x = math.sin(math.radians(angle_of_position_with_respect_to_origin)) * total_gravitational_force
+        gravitational_force_y = math.cos(math.radians(angle_of_position_with_respect_to_origin)) * total_gravitational_force
+
+        print("Gravity X: " + str(gravitational_force_x))
+
         print("Gravity Y: " + str(gravitational_force_y))
 
         #Remove gravity from force
+        force_x -= gravitational_force_x
         force_y -= gravitational_force_y
 
         curr_atmospheric_density = self.body.atmosphere.density_at_height(self.rocket_altitude(), g)
@@ -123,6 +140,7 @@ class Simulation():
 
     def rocket_altitude(self):
         #take into account body and allow for 360 height
+        #TODO: try and solve it using 2 sqrt instead of having such a big number in parameters which can crass with high timesx
         altitude = math.sqrt(self.x**2 + self.y**2)
         altitude -= self.body.radius
         return altitude 

@@ -17,6 +17,9 @@ from gui.background_sprite import Sprite_Background
 from gui.rocket_sprite import Sprite_Rocket
 from gui.body_sprite import Sprite_Body
 
+import numpy as np
+from matplotlib import pyplot as plot
+
 def main(argv):
     raptor_engine = Engine(name="raptor", isp=360, max_flow_rate=931) #https://en.wikipedia.org/wiki/SpaceX_Raptor
     methane_fuel = Fuel(name="methane") #TODO: more
@@ -50,7 +53,7 @@ def main(argv):
 
     rocket = Rocket(name="starship launch system", 
                     stages=[first_stage, second_stage],
-                    payload_mass=100
+                    payload_mass=80000
                     )
     
     body = Body(name="earth",
@@ -87,12 +90,14 @@ def main(argv):
                      Sprite_Rocket(simulation, floor))
 
     simulation_display = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+    plot_coords = []
+    speedup = 1.0
     paused = False
     while True:
         if not paused:
             sprite_group.update(simulation_display.get_width(), simulation_display.get_height())
             sprite_group.draw(simulation_display)
-            draw_text_info(simulation_display, simulation)
+            draw_text_info(simulation_display, simulation, paused, speedup)
             pygame.display.update()
 
         for event in pygame.event.get(): 
@@ -104,22 +109,38 @@ def main(argv):
                     quit()
                 elif event.key == pygame.K_SPACE:
                     paused = not paused
+                elif event.key == pygame.K_PLUS:
+                    speedup *= 1.1
+                elif event.key == pygame.K_MINUS:
+                    speedup *= 0.9
+                elif event.key == pygame.K_LSHIFT:
+                    #TODO: make the simulation window not loose focus when plot shown
+                    data = np.array(plot_coords)
+                    x, y = data.T
+                    plot.close()
+                    from itertools import cycle
+                    possible_colors = cycle(range(0xFFFFFF+1))
+                    plot.scatter(x, y, c=[next(possible_colors) for i in range(len(data))])
+                    plot.pause(0.001)
                 else:
                     handle_key_press(simulation, event.key)
 
         delta = clock.tick(60) / 1000 #60fps #are we using delta in the simulation tick everywhere needed?
         if not paused:
             print("delta: " + str(delta))
-            simulation.tick(delta=delta)
+            simulation.tick(delta=delta * speedup)
+            plot_coords.append([simulation.x, simulation.y])
 
-        #TODO: implement gravity properly (x and y)
+        #TODO: Rocket altitude look at todo
+        #TODO: DOnt overuse timeskip as physics not done, would have to increase fps for that or smth?
+        #TODO: Do a minimap that shows the body outline and where u are + orbit too
         #TODO: implement apoapsis and periapsis calculation
         #TODO: draw good rocket sprite, persistant clouds and star sprites, etc.
         #TODO: do actual aerodynamic load so heading depends on that and not on speed
         #TODO: do max load on rocket so it blows up
         #TODO: allow multilanguage api for landing algorithms etc
 
-def draw_text_info(simulation_display: type[pygame.Surface], simulation: type[Simulation]) -> None:        
+def draw_text_info(simulation_display: type[pygame.Surface], simulation: type[Simulation], paused: bool, speedup: float) -> None:        
         #draw stats text
         font = pygame.font.SysFont("Comic Sans MS", 30)
 
@@ -127,22 +148,23 @@ def draw_text_info(simulation_display: type[pygame.Surface], simulation: type[Si
         curr_thrust = simulation.rocket.current_stage().current_thrust(g, simulation.heading)
 
         simulation_display.blit(font.render("Simulation time: {:.0f}s".format(simulation.time), False, (255, 255, 255)),(0,0))
-        simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.rocket_altitude()), False, (255, 255, 255)),(0,40))
-        simulation_display.blit(font.render("X: {:.0f}m".format(simulation.x), False, (255, 255, 255)),(0,80))
-        simulation_display.blit(font.render("Y: {:.0f}m".format(simulation.y), False, (255, 255, 255)),(0,120))
-        simulation_display.blit(font.render("Speed x: {:.0f}m/s".format(simulation.speed_x), False, (255, 255, 255)),(0,160))
-        simulation_display.blit(font.render("Speed y: {:.0f}m/s".format(simulation.speed_y), False, (255, 255, 255)),(0,200))
-        simulation_display.blit(font.render("Acceleration x: {:.2f}m/s2".format(simulation.acceleration_x), False, (255, 255, 255)),(0,240))
-        simulation_display.blit(font.render("Acceleration y: {:.2f}m/s2".format(simulation.acceleration_y), False, (255, 255, 255)),(0,280))
-        simulation_display.blit(font.render("Thrust x: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(g, simulation.heading)[0]), False, (255, 255, 255)),(0,320))
-        simulation_display.blit(font.render("Thrust y: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(g, simulation.heading)[1]), False, (255, 255, 255)),(0,360))
-        simulation_display.blit(font.render("Fuel in stage: {:.0f}kg".format(simulation.rocket.current_stage().fuel_mass), False, (255, 255, 255)),(0,400))
-        simulation_display.blit(font.render("Stage mass: {:.0f}kg".format(simulation.rocket.current_stage().total_mass()), False, (255, 255, 255)),(0,440))
-        simulation_display.blit(font.render("Rocket mass: {:.0f}kg".format(simulation.rocket.total_mass()), False, (255, 255, 255)),(0,480))
-        simulation_display.blit(font.render("Stage number: {:.0f}".format(simulation.rocket.stages_spent), False, (255, 255, 255)),(0,520))
-        simulation_display.blit(font.render("Throttle: {:.0f}%".format(simulation.rocket.current_stage().throttle), False, (255, 255, 255)),(0,560))
-        simulation_display.blit(font.render("Gimbal: {:.2f}deg".format(simulation.rocket.current_stage().gimbal), False, (255, 255, 255)),(0,600))
-        simulation_display.blit(font.render("Heading: {:.2f}deg".format(simulation.heading), False, (255, 255, 255)),(0,640))
+        simulation_display.blit(font.render("Speedup: x{:.1f}".format(speedup), False, (255, 255, 255)),(0,40))
+        simulation_display.blit(font.render("Altitude: {:.0f}m".format(simulation.rocket_altitude()), False, (255, 255, 255)),(0,80))
+        simulation_display.blit(font.render("X: {:.0f}m".format(simulation.x), False, (255, 255, 255)),(0,120))
+        simulation_display.blit(font.render("Y: {:.0f}m".format(simulation.y), False, (255, 255, 255)),(0,160))
+        simulation_display.blit(font.render("Speed x: {:.0f}m/s".format(simulation.speed_x), False, (255, 255, 255)),(0,200))
+        simulation_display.blit(font.render("Speed y: {:.0f}m/s".format(simulation.speed_y), False, (255, 255, 255)),(0,240))
+        simulation_display.blit(font.render("Acceleration x: {:.2f}m/s2".format(simulation.acceleration_x), False, (255, 255, 255)),(0,280))
+        simulation_display.blit(font.render("Acceleration y: {:.2f}m/s2".format(simulation.acceleration_y), False, (255, 255, 255)),(0,320))
+        simulation_display.blit(font.render("Thrust x: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(g, simulation.heading)[0]), False, (255, 255, 255)),(0,360))
+        simulation_display.blit(font.render("Thrust y: {:.0f}N".format(simulation.rocket.current_stage().current_thrust(g, simulation.heading)[1]), False, (255, 255, 255)),(0,400))
+        simulation_display.blit(font.render("Fuel in stage: {:.0f}kg".format(simulation.rocket.current_stage().fuel_mass), False, (255, 255, 255)),(0,440))
+        simulation_display.blit(font.render("Stage mass: {:.0f}kg".format(simulation.rocket.current_stage().total_mass()), False, (255, 255, 255)),(0,480))
+        simulation_display.blit(font.render("Rocket mass: {:.0f}kg".format(simulation.rocket.total_mass()), False, (255, 255, 255)),(0,520))
+        simulation_display.blit(font.render("Stage number: {:.0f}".format(simulation.rocket.stages_spent), False, (255, 255, 255)),(0,560))
+        simulation_display.blit(font.render("Throttle: {:.0f}%".format(simulation.rocket.current_stage().throttle), False, (255, 255, 255)),(0,600))
+        simulation_display.blit(font.render("Gimbal: {:.2f}deg".format(simulation.rocket.current_stage().gimbal), False, (255, 255, 255)),(0,640))
+        simulation_display.blit(font.render("Heading: {:.2f}deg".format(simulation.heading), False, (255, 255, 255)),(0,680))
 
 def handle_key_press(simulation, key):
     if key == pygame.K_x:
