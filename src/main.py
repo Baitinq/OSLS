@@ -16,6 +16,7 @@ from pygame.locals import *
 from gui.background_sprite import Sprite_Background
 from gui.rocket_sprite import Sprite_Rocket
 from gui.body_sprite import Sprite_Body
+from gui.minimap_sprite import Sprite_Minimap
 
 import numpy as np
 from matplotlib import pyplot as plot
@@ -76,8 +77,8 @@ def main(argv):
     pygame.display.set_caption("OSLS - Overly Simple Launch Simulator")
     clock = pygame.time.Clock()
 
-    SCREEN_WIDTH = 1024
-    SCREEN_HEIGHT = 720
+    SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = 940
 
     sprite_group = pygame.sprite.Group()
 
@@ -87,7 +88,8 @@ def main(argv):
 
     sprite_group.add(Sprite_Background(simulation),
                      Sprite_Body(simulation, floor), 
-                     Sprite_Rocket(simulation, floor))
+                     Sprite_Rocket(simulation, floor),
+                     Sprite_Minimap(simulation, 100))
 
     simulation_display = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
     plot_coords = []

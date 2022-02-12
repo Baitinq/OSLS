@@ -59,15 +59,10 @@ class Simulation():
         total_gravitational_force = g * self.rocket.total_mass()
         print("Total Gravity: " + str(total_gravitational_force))
 
-        ref_vec = (0, 1)
-        pos_vec = (self.x, self.y)
-        dot = (pos_vec[0] * ref_vec[0]) + (pos_vec[1] * ref_vec[1])
-        det = (pos_vec[0] * ref_vec[1]) - (pos_vec[1] * ref_vec[0])
-        angle_of_position_with_respect_to_origin = math.degrees(math.atan2(det, dot))
-        print("angle_of_position_with_respect_to_origin: " + str(angle_of_position_with_respect_to_origin))
+        print("angle_of_position_with_respect_to_origin: " + str(self.angle_of_position_with_respect_to_origin()))
 
-        gravitational_force_x = math.sin(math.radians(angle_of_position_with_respect_to_origin)) * total_gravitational_force
-        gravitational_force_y = math.cos(math.radians(angle_of_position_with_respect_to_origin)) * total_gravitational_force
+        gravitational_force_x = math.sin(math.radians(self.angle_of_position_with_respect_to_origin())) * total_gravitational_force
+        gravitational_force_y = math.cos(math.radians(self.angle_of_position_with_respect_to_origin())) * total_gravitational_force
 
         print("Gravity X: " + str(gravitational_force_x))
 
@@ -83,14 +78,14 @@ class Simulation():
         #TODO: cross sectional area and drag coef for x should b different
         drag_force_x = (1/2) * curr_atmospheric_density * (self.speed_x ** 2) * self.rocket.rocket_x_drag_coefficient() * self.rocket.rocket_x_cross_sectional_area()
         #drag goes against speed
-        if force_x < 0:
+        if self.speed_x < 0:
             drag_force_x *= -1
         print("Drag X: " + str(drag_force_x))
 
         #https://www.grc.nasa.gov/www/k-12/airplane/drageq.html
         drag_force_y = (1/2) * curr_atmospheric_density * (self.speed_y ** 2) * self.rocket.rocket_y_drag_coefficient() * self.rocket.rocket_y_cross_sectional_area()
         #drag goes against speed
-        if force_y < 0:
+        if self.speed_y < 0:
             drag_force_y *= -1
         print("Drag Y: " + str(drag_force_y))
 
@@ -143,7 +138,14 @@ class Simulation():
         #TODO: try and solve it using 2 sqrt instead of having such a big number in parameters which can crass with high timesx
         altitude = math.sqrt(self.x**2 + self.y**2)
         altitude -= self.body.radius
-        return altitude 
+        return altitude
+
+    def angle_of_position_with_respect_to_origin(self):
+        ref_vec = (0, 1)
+        pos_vec = (self.x, self.y)
+        dot = (pos_vec[0] * ref_vec[0]) + (pos_vec[1] * ref_vec[1])
+        det = (pos_vec[0] * ref_vec[1]) - (pos_vec[1] * ref_vec[0])
+        return math.degrees(math.atan2(det, dot))
 
     def snapshot(self) -> Simulation_Snapshot:
         return Simulation_Snapshot(self.universe, self.body, self.rocket)
